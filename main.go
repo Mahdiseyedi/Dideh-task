@@ -18,16 +18,18 @@ const (
 	CountOfEnoughHashes = 498
 )
 
-func randomString() string {
+// A function to generate random strings and send them to a channel
+func randomStringGenerator(ch chan string) {
+	for {
+		length := rand.Intn(MaxLengthOfStrings-MinLengthOfStrings+1) + MinLengthOfStrings
+		b := make([]byte, length)
 
-	length := rand.Intn(MaxLengthOfStrings-MinLengthOfStrings+1) + MinLengthOfStrings
-	b := make([]byte, length)
+		for i := range b {
+			b[i] = Charset[rand.Intn(len(Charset))]
+		}
 
-	for i := range b {
-		b[i] = Charset[rand.Intn(len(Charset))]
+		ch <- string(b)
 	}
-
-	return string(b)
 }
 
 func hashString(s string) string {
@@ -92,8 +94,14 @@ func main() {
 
 	mu := sync.Mutex{}
 
+	ch := make(chan string)
+
+	go randomStringGenerator(ch)
+
 	for {
-		s := randomString()
+
+		// Receive a random string from the channel
+		s := <-ch
 
 		wg.Add(1)
 
