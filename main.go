@@ -13,16 +13,14 @@ import (
 
 const (
 	Charset             = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	MinLengthOfStrings  = 2
-	MaxLengthOfStrings  = 20000
+	RandomStringLength  = 1000
 	CountOfEnoughHashes = 498
+	BufferSize          = 1000
 )
 
-// A function to generate random strings and send them to a channel
 func randomStringGenerator(ch chan string) {
 	for {
-		length := rand.Intn(MaxLengthOfStrings-MinLengthOfStrings+1) + MinLengthOfStrings
-		b := make([]byte, length)
+		b := make([]byte, RandomStringLength)
 
 		for i := range b {
 			b[i] = Charset[rand.Intn(len(Charset))]
@@ -94,7 +92,7 @@ func main() {
 
 	mu := sync.Mutex{}
 
-	ch := make(chan string)
+	ch := make(chan string, BufferSize)
 
 	go randomStringGenerator(ch)
 
